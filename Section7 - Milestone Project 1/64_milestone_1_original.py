@@ -65,12 +65,13 @@ def draw_board(board):
 
 def get_position(brd_state):
     valid_position = False
+    position = 999
 
     while not valid_position:
         position = input("Choose your next position (1-9): ")
 
         if not position.isdigit():
-            print("Enter a numberical value")
+            print("Enter a numerical value")
         else:
             # convert into integer
             position = int(position)
@@ -93,13 +94,45 @@ def update_board_state(brd_state, game_piece, position):
 
 
 def check_game_over(bd, game_piece):
-    there_is_a_winner = False
 
-    # incomplete
+    # 6|7|8
+    # 3|4|5
+    # 0|1|2
     if (bd[6] == bd[3] == bd[0] == game_piece):
         there_is_a_winner = True
+    elif (bd[7] == bd[4] == bd[1] == game_piece):
+        there_is_a_winner = True
+    elif (bd[8] == bd[5] == bd[2] == game_piece):
+        there_is_a_winner = True
+    elif (bd[6] == bd[7] == bd[8] == game_piece):
+        there_is_a_winner = True
+    elif (bd[3] == bd[4] == bd[5] == game_piece):
+        there_is_a_winner = True
+    elif (bd[0] == bd[1] == bd[2] == game_piece):
+        there_is_a_winner = True
+    elif (bd[0] == bd[4] == bd[8] == game_piece):
+        there_is_a_winner = True
+    elif (bd[6] == bd[4] == bd[2] == game_piece):
+        there_is_a_winner = True
+    else:
+        there_is_a_winner = False
 
     return there_is_a_winner
+
+
+def game_over_menu(the_winner):
+    user_input = ""
+    valid_response = False
+
+    print(f"Congratulations! {the_winner} won the game!")
+    while not valid_response:
+        user_input = input("Do you want to play again? (Y/N): ")
+        user_input = user_input.lower()
+
+        if user_input in ['y', 'n']:
+            valid_response = True
+
+    return user_input == 'n'
 
 
 # ================
@@ -112,48 +145,54 @@ while not stop_playing:
     game_over = False
     p1_game_piece = '@'
     p2_game_piece = '@'
-    winner = "no one"
+    winner = "No one"
+    turnNum = 0
 
-    # p1_game_piece = game_menu()
+    p1_game_piece = game_menu()
 
-    # # determine p2's game piece
-    # if p1_game_piece == 'X':
-    #     p2_game_piece = 'O'
-    # else:
-    #     p2_game_piece = 'X'
+    # determine p2's game piece
+    if p1_game_piece == 'X':
+        p2_game_piece = 'O'
+    else:
+        p2_game_piece = 'X'
 
-    # test
-    # p1_game_piece = 'X'
-    # p2_game_piece = 'O'
+    # draw initial board
+    draw_board(board_state)
 
     while not game_over:
-        # draw initial board
-        board_state[6] = 'X'
-        board_state[3] = 'X'
-        draw_board(board_state)
-        
         # player 1 choose
         p1_choice = get_position(board_state)
         board_state = update_board_state(board_state, p1_game_piece, p1_choice)
         draw_board(board_state)
+        turnNum += 1
 
         # check if player 1 has won
         if check_game_over(board_state, p1_game_piece):
             game_over = True
+            winner = "Player 1"
             break
-        
+
+        # check if board is full
+        if turnNum >= 9:
+            break
+
         # player 2 choose
         p2_choice = get_position(board_state)
         board_state = update_board_state(board_state, p2_game_piece, p2_choice)
         draw_board(board_state)
+        turnNum += 1
 
         # check if player 2 has won
-        if check_game_over(board_state, p1_game_piece):
+        if check_game_over(board_state, p2_game_piece):
             game_over = True
+            winner = "Player 2"
             break
 
-        game_over = True #temporary
+        # check if board is full
+        if turnNum >= 9:
+            break
 
-    print("Congratulations! You won the game!")
-    print("Do you want to play again?")
-    stop_playing = True
+    # display winner and check if players want to play again
+    stop_playing = game_over_menu(winner)
+
+print("Thanks for playing!")
